@@ -1,14 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-let nextId = 1
+const STORAGE_KEY = 'dash-board:tasks'
+
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
 
 export function useTasks() {
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(loadTasks)
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
+  }, [tasks])
 
   const addTask = (text) => {
     const trimmed = text.trim()
     if (!trimmed) return
-    setTasks((prev) => [...prev, { id: nextId++, text: trimmed, done: false }])
+    setTasks((prev) => [...prev, { id: crypto.randomUUID(), text: trimmed, done: false }])
   }
 
   const toggleTask = (id) => {
